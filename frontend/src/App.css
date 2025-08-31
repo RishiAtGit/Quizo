@@ -1,27 +1,23 @@
 /* frontend/src/App.css */
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Orbitron:wght@900&display=swap');
 
 :root {
-  --primary-color: #FF69B4; /* Hot Pink */
-  --secondary-color: #FFD700; /* Gold */
-  --tertiary-color: #00BFFF; /* Deep Sky Blue */
-  --background-light: #FFF8DC; /* Cornsilk */
-  --surface-playful: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
-  --text-dark: #333333;
-  --text-light: #ffffff;
-  --correct-color: #32CD32; /* Lime Green */
-  --incorrect-color: #FF4500; /* Orange Red */
-  --font-display: 'Bangers', cursive;
-  --font-body: 'Permanent Marker', cursive;
+  --primary-color: #00ddff;
+  --secondary-color: #ff00c8;
+  --background-deep: #0a0a10;
+  --surface-translucent: rgba(15, 15, 25, 0.7);
+  --text-primary: #ffffff;
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Chakra Petch', sans-serif;
 }
 
-/* --- Body & Animated Background --- */
+/* --- Interactive Background & Main Layout --- */
 body {
   margin: 0;
   font-family: var(--font-body);
-  color: var(--text-dark);
-  background-color: var(--background-light);
-  overflow: hidden; /* Hide overflow for background animations */
+  color: var(--text-primary);
+  background-color: var(--background-deep);
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,32 +26,18 @@ body {
 
 .background {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(135deg, var(--background-light) 0%, var(--tertiary-color) 100%);
-  overflow: hidden;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--background-deep), var(--background-deep));
+  animation: gradient-flow 20s ease-in-out infinite;
+  background-size: 400% 400%;
   z-index: -1;
 }
 
-/* Jumping Quizo Letters */
-.background::before {
-  content: "QUIZO QUIZO QUIZO QUIZO";
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) rotate(-15deg);
-  font-family: var(--font-display);
-  font-size: 10em; /* Very large */
-  color: rgba(255, 255, 255, 0.1);
-  white-space: nowrap;
-  letter-spacing: 15px;
-  animation: floatBackground 20s linear infinite alternate;
+@keyframes gradient-flow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@keyframes floatBackground {
-  0% { transform: translate(-50%, -50%) rotate(-15deg); }
-  100% { transform: translate(-55%, -45%) rotate(-20deg); }
-}
-
-/* --- App Wrapper & Content --- */
 .app-wrapper {
   width: 100%;
   height: 100vh;
@@ -65,242 +47,113 @@ body {
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  position: relative; /* For z-index stacking */
-  z-index: 2;
 }
 
-.content { z-index: 3; } /* Ensure content is above background */
+.content { z-index: 1; }
 
 /* --- Watermark & Footer --- */
 .watermark {
   position: fixed; top: 20px; left: 20px;
-  display: flex; align-items: baseline;
+  display: flex; align-items: center;
   z-index: 10;
-  animation: bounceIn 1s ease-out;
+  animation: slideInFromTop 1s ease-out;
 }
 .logo {
   font-family: var(--font-display);
-  font-size: 3em; font-weight: 900;
+  font-size: 2.5em; font-weight: 900;
   color: var(--primary-color);
-  text-shadow: 3px 3px 0px var(--text-dark), 5px 5px 0px var(--secondary-color);
+  text-shadow: 0 0 10px var(--primary-color);
   margin-right: 10px;
-  line-height: 1; /* Adjust to align with app-name */
 }
 .app-name {
   font-family: var(--font-display);
-  font-size: 2em;
-  color: var(--text-dark);
-  letter-spacing: 3px;
-  text-shadow: 2px 2px 0px var(--tertiary-color);
-  line-height: 1;
+  font-size: 1.5em;
+  color: var(--text-primary);
+  letter-spacing: 2px;
 }
 
 .footer {
   position: fixed; bottom: 10px;
   width: 100%; text-align: center;
-  font-size: 1em; color: var(--text-dark);
-  text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+  font-size: 0.9em; color: rgba(255, 255, 255, 0.5);
   z-index: 10;
-  animation: bounceIn 1s ease-out;
+  animation: slideInFromBottom 1s ease-out;
 }
 
-@keyframes bounceIn {
-  0% { transform: scale(0.3); opacity: 0; }
-  50% { transform: scale(1.1); opacity: 1; }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
-}
+@keyframes slideInFromTop { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideInFromBottom { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* --- Main Container (Game Board) --- */
+/* --- Main Container & UI Elements --- */
 .container {
-  background: var(--surface-playful);
-  border: 5px dashed var(--secondary-color);
-  padding: 30px 40px; border-radius: 25px;
-  box-shadow: 10px 10px 0px var(--primary-color), 15px 15px 0px var(--tertiary-color);
-  width: 100%; max-width: 650px;
+  background: var(--surface-translucent);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 40px; border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  width: 100%; max-width: 600px;
   text-align: center;
-  animation: popUp 0.8s ease-out;
+  animation: fadeIn 1s ease-out;
 }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-@keyframes popUp {
-  0% { transform: scale(0.8) translateY(50px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
+h1, h2, h3, h4 { font-family: var(--font-display); text-transform: uppercase; }
+h1 { font-size: 3em; color: var(--primary-color); }
 
-h1 { font-size: 3.5em; color: var(--primary-color); text-shadow: 4px 4px 0px var(--text-dark); margin-bottom: 20px; }
-h2 { font-size: 2.5em; color: var(--text-dark); text-shadow: 2px 2px 0px var(--secondary-color); margin-top: 15px; }
-h3 { font-size: 1.8em; color: var(--text-dark); margin-top: 10px; }
-h4 { font-size: 1.4em; color: var(--text-dark); text-decoration: underline wavy var(--tertiary-color); margin-top: 25px; }
-
-
-/* --- Inputs & Buttons --- */
 input[type="text"] {
-  width: 80%; padding: 15px; background: var(--text-light);
-  color: var(--text-dark); border: 3px solid var(--primary-color);
-  border-radius: 10px; font-size: 1.1em; font-family: var(--font-body);
-  text-align: center; box-shadow: 5px 5px 0px var(--secondary-color);
-  transition: all 0.2s ease-in-out;
+  width: 80%; padding: 15px; background: rgba(0,0,0,0.5);
+  color: var(--primary-color); border: 1px solid var(--primary-color);
+  border-radius: 8px; font-size: 1.1em; text-align: center;
 }
-input[type="text"]::placeholder { color: var(--text-dark); opacity: 0.7; }
-input[type="text"]:focus {
-  outline: none; border-color: var(--tertiary-color);
-  box-shadow: 5px 5px 0px var(--primary-color);
-}
+input[type="text"]:focus { outline: none; box-shadow: 0 0 15px var(--primary-color); }
 
 button {
-  background-color: var(--primary-color);
-  color: var(--text-light);
-  border: 3px solid var(--text-dark);
-  padding: 15px 30px; border-radius: 10px;
-  font-size: 1.2em; font-family: var(--font-display);
-  cursor: pointer; transition: all 0.2s ease-in-out; margin: 10px 5px;
-  text-transform: uppercase;
-  box-shadow: 5px 5px 0px var(--text-dark);
-  text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+  background: transparent; color: var(--text-primary); border: 2px solid var(--primary-color);
+  padding: 15px 30px; font-size: 1.1em; font-family: var(--font-display);
+  cursor: pointer; transition: all 0.3s ease; margin: 10px 5px;
+  text-transform: uppercase; border-radius: 8px;
 }
-button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 8px 8px 0px var(--text-dark);
-}
-button.btn-secondary {
-  background-color: var(--tertiary-color);
-  border-color: var(--text-dark);
-  box-shadow: 5px 5px 0px var(--text-dark);
-}
-button.btn-secondary:hover:not(:disabled) {
-  background-color: var(--tertiary-color);
-  box-shadow: 8px 8px 0px var(--text-dark);
-}
-button:disabled {
-  background-color: #cccccc;
-  border-color: #999999;
-  color: #666666;
-  box-shadow: 3px 3px 0px #999999;
-  cursor: not-allowed;
-  transform: none;
-}
+button:hover:not(:disabled) { background-color: var(--primary-color); color: #000; box-shadow: 0 0 20px var(--primary-color); }
+button.btn-secondary { border-color: var(--secondary-color); }
+button.btn-secondary:hover:not(:disabled) { background-color: var(--secondary-color); box-shadow: 0 0 20px var(--secondary-color); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* --- Join/Host Toggle --- */
 .join-toggle {
   display: flex; justify-content: center;
-  background: var(--text-light); border-radius: 10px;
+  background: rgba(0,0,0,0.3); border-radius: 8px;
   margin-bottom: 20px; padding: 5px;
-  box-shadow: 5px 5px 0px var(--tertiary-color);
 }
 .join-toggle button {
-  flex: 1; border: none; background: transparent; color: var(--text-dark);
-  padding: 10px; border-radius: 8px;
-  box-shadow: none; font-family: var(--font-body);
+  flex: 1; border: none; background: transparent; color: rgba(255,255,255,0.5);
+  padding: 10px; border-radius: 6px;
 }
-.join-toggle button.active {
-  background: var(--primary-color); color: var(--text-light);
-  box-shadow: inset 3px 3px 0px var(--text-dark);
-  transform: translateY(2px);
-}
+.join-toggle button.active { background: var(--primary-color); color: #000; }
 
-/* --- Avatar Selector --- */
 .avatar-selector { margin: 20px 0; }
-.avatar-grid { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.avatar-grid { display: flex; justify-content: center; gap: 10px; }
 .avatar-btn {
-  font-size: 2.2em; padding: 0; border: 3px solid var(--text-dark);
-  background: var(--text-light); border-radius: 50%;
-  width: 65px; height: 65px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 4px 4px 0px var(--secondary-color);
-  transition: all 0.2s ease-in-out;
+  font-size: 1.8rem; border: 2px solid transparent;
+  background: rgba(255,255,255,0.1); border-radius: 50%;
+  width: 50px; height: 50px; padding: 0;
 }
-.avatar-btn.selected {
-  border-color: var(--primary-color);
-  transform: scale(1.1) translateY(-5px);
-  box-shadow: 6px 6px 0px var(--primary-color);
-}
-.avatar-btn:hover:not(.selected) { transform: translateY(-3px); }
+.avatar-btn.selected { border-color: var(--primary-color); transform: scale(1.1); }
 
-
-/* --- Player Lists & Scoreboard --- */
-.player-list ul { list-style: none; padding: 0; }
 .player-list li {
-  background: var(--text-light);
-  border: 2px solid var(--tertiary-color);
-  padding: 10px 15px; margin: 8px 0; border-radius: 8px;
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 1.1em;
-  box-shadow: 3px 3px 0px var(--primary-color);
-  animation: slideIn 0.3s ease-out forwards;
+  background: rgba(0, 221, 255, 0.05);
+  border-left: 4px solid var(--primary-color);
+  padding: 12px; margin: 8px 0; border-radius: 8px;
+  display: flex; align-items: center;
 }
-.player-list li span:first-child { display: flex; align-items: center; } /* For avatar + nickname */
-.avatar { font-size: 1.8em; margin-right: 10px; line-height: 1; }
-@keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.avatar { font-size: 1.5em; margin-right: 15px; }
 
+.options button { display: block; width: 100%; margin: 10px 0; }
+.options button.selected, .options button:hover:not(:disabled) { background-color: var(--primary-color); color: #000; }
+.results .correct { color: var(--correct); }
+.results .incorrect { color: var(--incorrect); }
 
-/* --- Question & Answer Options --- */
-.options button {
-  display: block; width: 100%; margin: 12px 0; text-align: left;
-  background-color: var(--text-light);
-  color: var(--text-dark);
-  border: 3px solid var(--tertiary-color);
-  text-shadow: none; /* Remove text shadow for options */
-  box-shadow: 5px 5px 0px var(--primary-color);
-}
-.options button:hover:not(:disabled) {
-  background-color: var(--tertiary-color);
-  color: var(--text-light);
-  box-shadow: 8px 8px 0px var(--primary-color);
-}
-.options button.selected {
-  background-color: var(--primary-color);
-  color: var(--text-light);
-  border-color: var(--text-dark);
-  box-shadow: 8px 8px 0px var(--text-dark);
-}
+.scoreboard li { background: none; padding: 5px; }
+.room-code { background: var(--primary-color); color: #000; padding: 5px 10px; border-radius: 4px; }
 
-/* --- Results & Quiz Creator --- */
-.results p { font-size: 1.2em; margin: 10px 0; }
-.results .correct { color: var(--correct-color); font-weight: bold; text-shadow: 1px 1px 0px rgba(0,0,0,0.2); }
-.results .incorrect { color: var(--incorrect-color); font-weight: bold; text-shadow: 1px 1px 0px rgba(0,0,0,0.2); }
-
-.scoreboard { margin-top: 30px; }
-.scoreboard h4 { text-decoration: none; } /* Override default underline */
-.scoreboard ul { padding-top: 10px; }
-.scoreboard li {
-  background: var(--text-light);
-  border: 2px solid var(--primary-color);
-  box-shadow: 4px 4px 0px var(--tertiary-color);
-  font-size: 1.3em;
-  padding: 10px 15px;
-  margin: 10px 0;
-}
-.scoreboard li .avatar { font-size: 1.8em; margin-right: 15px; }
-
-
-.question-editor {
-  background: var(--text-light);
-  border: 3px dashed var(--tertiary-color);
-  padding: 20px; margin: 20px 0; border-radius: 15px;
-  box-shadow: 5px 5px 0px var(--primary-color);
-}
-.question-editor input[type="text"] {
-  border-color: var(--tertiary-color);
-  box-shadow: 3px 3px 0px var(--primary-color);
-}
-
-.option-editor { display: flex; align-items: center; margin: 10px 0; }
-.option-editor input[type="radio"] {
-  margin-right: 15px; transform: scale(1.5);
-  accent-color: var(--primary-color);
-  /* Custom radio button style if needed */
-}
-.option-editor input[type="text"] { width: 100%; margin: 0; }
-
-.room-code {
-  background: var(--primary-color); color: var(--text-light);
-  padding: 8px 15px; border-radius: 8px; font-size: 1.6em;
-  font-family: var(--font-display);
-  text-shadow: 2px 2px 0px var(--text-dark);
-  box-shadow: 4px 4px 0px var(--text-dark);
-}
-
-.host-notice {
-  font-style: italic; color: var(--tertiary-color);
-  text-shadow: 1px 1px 0px var(--text-dark);
-}
+.question-editor { border: 1px solid var(--secondary-color); padding: 15px; margin: 15px 0; }
+.option-editor { display: flex; align-items: center; }
+.option-editor input[type="radio"] { margin-right: 10px; accent-color: var(--primary-color); }
