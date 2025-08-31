@@ -15,8 +15,9 @@ function App() {
   const [avatar, setAvatar] = React.useState(AVATARS[0]);
   const [roomCode, setRoomCode] = React.useState('');
   const [totalScores, setTotalScores] = React.useState({});
+  const [isJoining, setIsJoining] = React.useState(true);
 
-  const finalAvatar = view === 'create_quiz' ? HOST_AVATAR : avatar;
+  const finalAvatar = !isJoining ? HOST_AVATAR : avatar;
 
   const { sendMessage, lastJsonMessage } = useWebSocket(
     (roomCode && nickname) ? `${WS_BASE_URL}/ws/${roomCode}/${nickname}?avatar=${encodeURIComponent(finalAvatar)}` : null,
@@ -69,7 +70,7 @@ function App() {
       </div>
       
       <div className="content">
-        {view === 'join' && <JoinScreen {...{ nickname, setNickname, roomCode, setRoomCode, handleJoinQuiz, handleProceedToCreate, avatar, setAvatar }} />}
+        {view === 'join' && <JoinScreen {...{ nickname, setNickname, roomCode, setRoomCode, handleJoinQuiz, handleProceedToCreate, avatar, setAvatar, isJoining, setIsJoining }} />}
         {view === 'create_quiz' && <QuizCreator nickname={nickname} onQuizCreated={handleQuizCreated} />}
         {view !== 'join' && view !== 'create_quiz' && <QuizComponent {...{ lastJsonMessage, sendMessage, nickname, totalScores }} />}
       </div>
@@ -95,8 +96,7 @@ const AvatarSelector = ({ selectedAvatar, onSelectAvatar }) => (
   </div>
 );
 
-const JoinScreen = ({ nickname, setNickname, roomCode, setRoomCode, handleJoinQuiz, handleProceedToCreate, avatar, setAvatar }) => {
-  const [isJoining, setIsJoining] = React.useState(true);
+const JoinScreen = ({ nickname, setNickname, roomCode, setRoomCode, handleJoinQuiz, handleProceedToCreate, avatar, setAvatar, isJoining, setIsJoining }) => {
   return (
     <div className="container">
       <h1>QUIZO</h1>
@@ -128,9 +128,8 @@ const JoinScreen = ({ nickname, setNickname, roomCode, setRoomCode, handleJoinQu
 const QuizCreator = ({ nickname, onQuizCreated }) => {
   const [title, setTitle] = React.useState('');
   const [questions, setQuestions] = React.useState([{ text: '', options: ['', '', '', ''], correct_option: 0 }]);
-  const lastQuestionRef = React.useRef(null); // Create a ref
+  const lastQuestionRef = React.useRef(null);
 
-  // This effect runs whenever the number of questions changes
   React.useEffect(() => {
     if (lastQuestionRef.current) {
       lastQuestionRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -235,7 +234,7 @@ const Question = ({ lastJsonMessage, sendMessage, nickname, isHost }) => {
       <h2>{quiz_data.title}</h2><h3>{question.text}</h3>
       {isHost && <p className="host-notice">// Awaiting Player Responses</p>}
       <div className="options">{question.options.map((option, index) => (<button key={index} onClick={() => handleSubmitAnswer(index)} disabled={hasAnswered || isHost} className={selectedAnswer === index ? 'selected' : ''}>{option}</button>))}</div>
-      <div className="player-list"><h4>Answered [{Object.keys(answers).length}/{playerCount > 0 ? playerCount : 1}]</h4>
+      <div className="player-list"><h4>Answered [{Object.keys(answers).length}/{playerCount > 0 ? playerCount : 0}]</h4>
         <ul>{players.map(p => { if (p.nickname === host) return null; return (<li key={p.nickname} style={{ opacity: answers[p.nickname] !== undefined ? 1 : 0.4 }}><span className="avatar">{p.avatar}</span> {p.nickname}</li>) })}</ul>
       </div>
     </>
@@ -284,3 +283,4 @@ const Scoreboard = ({ scores, players }) => {
 )};
 
 export default App;
+

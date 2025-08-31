@@ -22,7 +22,11 @@ class QuizData(BaseModel):
 # --- FastAPI App Initialization ---
 app = FastAPI()
 
-origins = ["http://localhost:3000"]
+origins = [
+    "http://localhost:3000",
+    # Add your Vercel URL here after deployment
+    # "https://your-app-name.vercel.app" 
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -79,11 +83,14 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
     await manager.connect(websocket, room_code)
     room = quizzes[room_code]
 
-    is_host = not room["host"]
-    if is_host: room["host"] = nickname
+    if not room["host"]:
+        room["host"] = nickname
+    
+    is_player = nickname != room.get("host")
     
     room["players"].append({"nickname": nickname, "avatar": avatar})
-    if not is_host: room["scores"][nickname] = 0
+    if is_player:
+        room["scores"][nickname] = 0
 
     try:
         await manager.broadcast(room, room_code)
@@ -91,8 +98,12 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
         while True:
             data = await websocket.receive_json()
             action = data.get("action")
+            
+            current_host = room.get("host")
+            is_currently_host = nickname == current_host
+            is_currently_player = nickname != current_host
 
-            if is_host and action in ["start_quiz", "next_question"]:
+            if is_currently_host and action in ["start_quiz", "next_question"]:
                 next_q_index = 0 if action == "start_quiz" else room["current_question_index"] + 1
                 if next_q_index < len(room["quiz_data"]["questions"]):
                     room["state"] = "question"
@@ -103,7 +114,7 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
                     room["state"] = "finished"
                 await manager.broadcast(room, room_code)
 
-            elif action == "submit_answer" and not is_host:
+            elif action == "submit_answer" and is_currently_player:
                 time_taken = time.time() - room["question_start_time"]
                 current_q = room["quiz_data"]["questions"][room["current_question_index"]]
                 correct_answer_index = current_q["correct_option"]
@@ -115,8 +126,8 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
                     "time_taken": time_taken
                 }
                 
-                player_count = len(room["players"]) - 1
-                if len(room["answers"]) == player_count:
+                player_count = len([p for p in room["players"] if p["nickname"] != current_host])
+                if len(room["answers"]) >= player_count:
                     room["state"] = "results"
                     await manager.broadcast(room, room_code)
                 else:
@@ -124,8 +135,12 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
 
     except WebSocketDisconnect:
         manager.disconnect(websocket, room_code)
+        was_host = nickname == room.get("host")
+        
         room["players"] = [p for p in room["players"] if p["nickname"] != nickname]
         if nickname in room["scores"]: del room["scores"][nickname]
-        if is_host and not any(p['nickname'] == nickname for p in room['players']):
+        
+        if was_host:
              room["host"] = room["players"][0]["nickname"] if room["players"] else None
+        
         await manager.broadcast(room, room_code)
