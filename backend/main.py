@@ -22,11 +22,13 @@ class QuizData(BaseModel):
 # --- FastAPI App Initialization ---
 app = FastAPI()
 
+# --- THIS IS THE CORRECTED PART THAT FIXES THE BUG ---
+# Add your live Vercel URL to this list so the backend trusts it.
 origins = [
     "http://localhost:3000",
-    # Add your Vercel URL here after deployment
-    # "https://your-app-name.vercel.app" 
+    "https://your-quizo-app-name.vercel.app"  # <--- IMPORTANT: REPLACE THIS WITH YOUR ACTUAL VERCEL URL
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
