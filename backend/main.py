@@ -22,11 +22,11 @@ class QuizData(BaseModel):
 # --- FastAPI App Initialization ---
 app = FastAPI()
 
-# --- THIS IS THE CORRECTED PART THAT FIXES THE BUG ---
-# Add your live Vercel URL to this list so the backend trusts it.
+# --- THIS IS THE CORRECTED PART ---
+# The URL from your error message has been added to the list.
 origins = [
     "http://localhost:3000",
-    "https://your-quizo-app-name.vercel.app"  # <--- IMPORTANT: REPLACE THIS WITH YOUR ACTUAL VERCEL URL
+    "https://quizo-flax.vercel.app"  # <-- Your live Vercel URL
 ]
 
 app.add_middleware(
@@ -146,3 +146,4 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str, nickname: str
              room["host"] = room["players"][0]["nickname"] if room["players"] else None
         
         await manager.broadcast(room, room_code)
+
