@@ -165,7 +165,7 @@ const QuizCreator = ({ nickname, onQuizCreated }) => {
 
   return (
     <div className="container">
-      <h2>QUIZ EDITOR // HOST: {nickname}</h2>
+      <h2>QUIZ EDITOR - HOST: {nickname}</h2>
       <input type="text" placeholder="QUIZ TITLE" value={title} onChange={(e) => setTitle(e.target.value)} />
       {questions.map((q, qIndex) => (
         <div 
