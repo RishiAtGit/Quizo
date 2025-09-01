@@ -6,7 +6,7 @@ import './App.css';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
 const WS_BASE_URL = process.env.REACT_APP_WS_BASE_URL || 'ws://127.0.0.1:8000';
 const AVATARS = ['🚀', '🤖', '👾', '🦊', '🐸', '🦄', '🐲', '👽'];
-const HOST_AVATAR = '👑';
+const HOST_AVATAR = 'HOST'; // Use a string identifier instead of an emoji
 
 // --- Main App Component ---
 function App() {
@@ -204,19 +204,38 @@ const QuizComponent = ({ lastJsonMessage, sendMessage, nickname, totalScores }) 
 };
 
 const Lobby = ({ lastJsonMessage, sendMessage, isHost }) => {
-  const { room_code, players } = lastJsonMessage;
+  const { room_code, players, host } = lastJsonMessage;
+  
+  const hostPlayer = players.find(p => p.nickname === host);
+  const participants = players.filter(p => p.nickname !== host);
+
   const handleStartQuiz = () => sendMessage(JSON.stringify({ action: "start_quiz" }));
+
   return (
     <>
       <h2>LOBBY</h2>
       <h3>ROOM CODE: <span className="room-code">{room_code}</span></h3>
-      <div className="player-list"><h4>PARTICIPANTS [{players.length}]</h4>
-        <ul>{players.map((p) => (<li key={p.nickname}><span className="avatar">{p.avatar}</span> {p.nickname}</li>))}</ul>
+      
+      {hostPlayer && (
+        <div className="host-display">
+          <span>{hostPlayer.nickname} (Host)</span>
+        </div>
+      )}
+
+      <div className="player-list">
+        <h4>PLAYERS [{participants.length}]</h4>
+        <ul>
+            {participants.map((p) => (
+                <li key={p.nickname}><span className="avatar">{p.avatar}</span> {p.nickname}</li>
+            ))}
+        </ul>
       </div>
-      {isHost && players.length > 1 && <button onClick={handleStartQuiz}>Start Quiz</button>}
+      
+      {isHost && participants.length > 0 && <button onClick={handleStartQuiz}>Start Quiz</button>}
     </>
   );
 };
+
 
 const Question = ({ lastJsonMessage, sendMessage, nickname, isHost }) => {
   const [selectedAnswer, setSelectedAnswer] = React.useState(null);
